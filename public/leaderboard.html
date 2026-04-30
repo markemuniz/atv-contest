@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATV Contest — The Travel Agency</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #111; --surface2: #1a1a1a; --border: #222;
+    --gold: #c9a84c; --gold-light: #e8c97a; --silver: #8a9bb0; --bronze: #a0674a;
+    --text: #f0f0f0; --muted: #555;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%),
+      repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,0.01) 40px,rgba(255,255,255,0.01) 41px),
+      repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,0.01) 40px,rgba(255,255,255,0.01) 41px);
+  }
+  .container { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:40px 24px; }
+  .header { text-align:center; margin-bottom:48px; }
+  .header-badge { display:inline-block; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.2em; color:var(--gold); border:1px solid rgba(201,168,76,0.3); padding:4px 14px; border-radius:2px; margin-bottom:16px; text-transform:uppercase; }
+  .header h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(52px,10vw,88px); letter-spacing:0.04em; line-height:0.9; }
+  .header h1 span { color:var(--gold); }
+  .header-sub { margin-top:12px; font-size:13px; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:0.1em; }
+  .lb-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:8px; }
+  .lb-title { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:0.06em; }
+  .lb-meta { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.1em; }
+  .podium { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:32px; align-items:end; }
+  @media(max-width:500px){ .podium { grid-template-columns:1fr; } }
+  .podium-card { border-radius:3px; padding:24px 16px 20px; text-align:center; position:relative; animation:riseIn 0.5s ease both; }
+  .podium-card.rank-1 { background:linear-gradient(135deg,#1a1500,#1f1a00); border:1px solid rgba(201,168,76,0.4); padding-top:32px; }
+  .podium-card.rank-2 { background:linear-gradient(135deg,#0e1318,#121820); border:1px solid rgba(138,155,176,0.3); }
+  .podium-card.rank-3 { background:linear-gradient(135deg,#150e0a,#1a120d); border:1px solid rgba(160,103,74,0.3); }
+  .podium-rank { font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:0.15em; margin-bottom:10px; }
+  .rank-1 .podium-rank { color:var(--gold); } .rank-2 .podium-rank { color:var(--silver); } .rank-3 .podium-rank { color:var(--bronze); }
+  .podium-crown { font-size:22px; margin-bottom:6px; display:block; }
+  .podium-name { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:0.06em; line-height:1; margin-bottom:10px; }
+  .rank-1 .podium-name { color:var(--gold-light); } .rank-2 .podium-name { color:var(--silver); } .rank-3 .podium-name { color:var(--bronze); }
+  .podium-atv { font-family:'DM Mono',monospace; font-size:28px; font-weight:500; }
+  .rank-1 .podium-atv { color:var(--gold); } .rank-2 .podium-atv { color:var(--silver); } .rank-3 .podium-atv { color:var(--bronze); }
+  .podium-days { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); margin-top:6px; letter-spacing:0.08em; }
+  .divider { border:none; border-top:1px solid var(--border); margin:28px 0; }
+  .section-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; margin-bottom:12px; }
+  .rest-list { display:flex; flex-direction:column; gap:8px; }
+  .rest-row { background:var(--surface); border:1px solid var(--border); border-radius:3px; display:grid; grid-template-columns:40px 1fr auto; align-items:center; padding:14px 20px; gap:16px; animation:riseIn 0.4s ease both; position:relative; overflow:hidden; }
+  .rest-bar { position:absolute; left:0; top:0; bottom:0; background:rgba(201,168,76,0.04); pointer-events:none; }
+  .rest-rank { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--muted); text-align:center; }
+  .rest-name { font-size:15px; font-weight:500; }
+  .rest-days { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.06em; }
+  .rest-atv { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; text-align:right; }
+  .loading { text-align:center; padding:60px; font-family:'DM Mono',monospace; color:var(--muted); letter-spacing:0.1em; }
+  .empty { text-align:center; padding:60px; font-family:'DM Mono',monospace; color:var(--muted); }
+  .last-updated { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); text-align:center; margin-top:32px; letter-spacing:0.08em; }
+  @keyframes riseIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-badge">The Travel Agency · DTBK</div>
+    <h1>ATV<br><span>Contest</span></h1>
+    <div class="header-sub">AVERAGE TRANSACTION VALUE · BUDTENDER LEADERBOARD</div>
+  </div>
+
+  <div id="content"><div class="loading">LOADING LEADERBOARD...</div></div>
+  <div class="last-updated" id="lastUpdated"></div>
+</div>
+
+<script>
+const fmt = n => '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+
+async function load() {
+  const res  = await fetch('/api/leaderboard');
+  const db   = await res.json();
+  const days = db.days || {};
+  const dates = Object.keys(days).sort();
+
+  if (!dates.length) {
+    document.getElementById('content').innerHTML = '<div class="empty">No data loaded yet. Check back soon.</div>';
+    return;
+  }
+
+  // Aggregate across all days
+  const budMap = {};
+  for (const date of dates) {
+    for (const [name, stats] of Object.entries(days[date])) {
+      if (!budMap[name]) budMap[name] = { dailyATVs:[], totalOrders:0, totalSales:0, dayBreakdown:[] };
+      budMap[name].dailyATVs.push(stats.avgTicket);
+      budMap[name].totalOrders += stats.orders;
+      budMap[name].totalSales  += stats.totalSales;
+      budMap[name].dayBreakdown.push({ date, orders:stats.orders, totalSales:stats.totalSales, atv:stats.avgTicket });
+    }
+  }
+
+  const ranked = Object.entries(budMap).map(([name, d]) => ({
+    name,
+    atv: d.dailyATVs.reduce((a,b)=>a+b,0)/d.dailyATVs.length,
+    totalOrders: d.totalOrders,
+    days: d.dailyATVs.length
+  })).sort((a,b)=>b.atv-a.atv);
+
+  const maxATV = ranked[0]?.atv||1;
+  const dateRange = dates.length>1 ? `${dates[0].slice(5)} – ${dates[dates.length-1].slice(5)}` : dates[0].slice(5);
+
+  let html = `<div class="lb-header">
+    <div class="lb-title">LEADERBOARD</div>
+    <div class="lb-meta">${dates.length} DAY${dates.length>1?'S':''} · ${ranked.length} BUDTENDERS · ${dateRange}</div>
+  </div>`;
+
+  // Podium
+  const top3 = ranked.slice(0,3);
+  const podOrder = top3.length>=2 ? [top3[1],top3[0],top3[2]].filter(Boolean) : top3;
+  const rankLabels = ['🥇 GOLD','🥈 SILVER','🥉 BRONZE'];
+  const rankClass  = ['rank-1','rank-2','rank-3'];
+  const crowns     = ['🥇','🥈','🥉'];
+
+  html += '<div class="podium">';
+  for (const p of podOrder) {
+    const r = ranked.indexOf(p);
+    html += `<div class="podium-card ${rankClass[r]}" style="animation-delay:${r*0.1}s">
+      <div class="podium-rank">${rankLabels[r]}</div>
+      <span class="podium-crown">${crowns[r]}</span>
+      <div class="podium-name">${p.name}</div>
+      <div class="podium-atv">${fmt(p.atv)}</div>
+      <div class="podium-days">${p.days} DAY${p.days>1?'S':''} · ${p.totalOrders} ORDERS</div>
+    </div>`;
+  }
+  html += '</div>';
+
+  // Rest
+  const rest = ranked.slice(3);
+  if (rest.length) {
+    html += '<hr class="divider"><div class="section-label">ALL BUDTENDERS</div><div class="rest-list">';
+    for (let i=0; i<rest.length; i++) {
+      const p = rest[i];
+      const bw = Math.round((p.atv/maxATV)*100);
+      html += `<div class="rest-row" style="animation-delay:${(i*.05).toFixed(2)}s">
+        <div class="rest-bar" style="width:${bw}%"></div>
+        <div class="rest-rank">${i+4}</div>
+        <div><div class="rest-name">${p.name}</div><div class="rest-days">${p.days} DAY${p.days>1?'S':''} · ${p.totalOrders} ORDERS</div></div>
+        <div class="rest-atv">${fmt(p.atv)}</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  document.getElementById('content').innerHTML = html;
+  document.getElementById('lastUpdated').textContent = `LAST UPDATED: ${new Date().toLocaleString()}`;
+}
+
+load();
+setInterval(load, 60000); // refresh every minute
+</script>
+</body>
+</html>

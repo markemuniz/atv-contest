@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATV Admin — The Travel Agency</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0a0a; --surface:#111; --surface2:#1a1a1a; --border:#222; --gold:#c9a84c; --gold-light:#e8c97a; --text:#f0f0f0; --muted:#555; --red:#e74c3c; --green:#2ecc71; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; }
+  .container { max-width:800px; margin:0 auto; padding:40px 24px; }
+
+  /* Login */
+  .login-wrap { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+  .login-box { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:48px; width:100%; max-width:400px; text-align:center; }
+  .login-box h1 { font-family:'Bebas Neue',sans-serif; font-size:36px; color:var(--gold); margin-bottom:8px; }
+  .login-box p { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:0.1em; margin-bottom:32px; }
+  .login-box input { width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:12px 16px; border-radius:3px; font-family:'DM Mono',monospace; font-size:14px; margin-bottom:12px; outline:none; }
+  .login-box input:focus { border-color:var(--gold); }
+  .btn { width:100%; background:var(--gold); color:#000; border:none; padding:14px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:0.12em; cursor:pointer; border-radius:2px; transition:background 0.2s; }
+  .btn:hover { background:var(--gold-light); }
+  .btn:disabled { background:#333; color:#666; cursor:not-allowed; }
+  .btn-sm { width:auto; padding:6px 14px; font-size:13px; }
+  .btn-danger { background:#c0392b; color:#fff; }
+  .btn-danger:hover { background:var(--red); }
+  .err { color:var(--red); font-family:'DM Mono',monospace; font-size:12px; margin-top:8px; }
+
+  /* Admin panel */
+  .admin-hidden { display:none; }
+  .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:40px; flex-wrap:wrap; gap:12px; }
+  .header h1 { font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--gold); }
+  .logout-btn { background:none; border:1px solid var(--border); color:var(--muted); padding:8px 16px; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.1em; cursor:pointer; border-radius:2px; transition:border-color 0.2s,color 0.2s; }
+  .logout-btn:hover { border-color:var(--red); color:var(--red); }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:28px; margin-bottom:24px; }
+  .card h2 { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--gold); letter-spacing:0.08em; margin-bottom:20px; }
+
+  .upload-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  @media(max-width:500px){ .upload-grid { grid-template-columns:1fr; } }
+  .upload-box { border:1px dashed var(--border); border-radius:3px; padding:20px; text-align:center; cursor:pointer; transition:border-color 0.2s,background 0.2s; position:relative; }
+  .upload-box:hover { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+  .upload-box input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
+  .upload-box .icon { font-size:24px; margin-bottom:6px; }
+  .upload-box .label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--muted); text-transform:uppercase; }
+  .upload-box .fname { font-size:11px; color:var(--gold); margin-top:4px; font-family:'DM Mono',monospace; word-break:break-all; }
+
+  .result-msg { font-family:'DM Mono',monospace; font-size:12px; padding:10px 14px; border-radius:3px; margin-top:12px; display:none; }
+  .result-msg.ok { background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.3); color:var(--green); }
+  .result-msg.err { background:rgba(231,76,60,0.1); border:1px solid rgba(231,76,60,0.3); color:var(--red); }
+
+  /* Days table */
+  .days-table { width:100%; border-collapse:collapse; }
+  .days-table th { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.12em; color:var(--muted); text-align:left; padding:8px 12px; background:var(--surface2); text-transform:uppercase; }
+  .days-table td { font-family:'DM Mono',monospace; font-size:12px; padding:10px 12px; border-top:1px solid var(--border); }
+  .days-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .delete-btn { background:none; border:1px solid #333; color:#666; padding:3px 10px; font-family:'DM Mono',monospace; font-size:10px; cursor:pointer; border-radius:2px; transition:border-color 0.2s,color 0.2s; }
+  .delete-btn:hover { border-color:var(--red); color:var(--red); }
+  .no-days { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); padding:20px; text-align:center; }
+
+  .view-link { display:inline-block; font-family:'DM Mono',monospace; font-size:11px; color:var(--gold); text-decoration:none; letter-spacing:0.08em; }
+  .view-link:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h1>ATV ADMIN</h1>
+    <p>THE TRAVEL AGENCY · DTBK</p>
+    <input type="password" id="pwInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn" onclick="login()">SIGN IN</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="container admin-hidden" id="adminPanel">
+  <div class="header">
+    <h1>ATV ADMIN</h1>
+    <div style="display:flex;gap:12px;align-items:center;">
+      <a href="/" class="view-link">↗ VIEW LEADERBOARD</a>
+      <button class="logout-btn" onclick="logout()">SIGN OUT</button>
+    </div>
+  </div>
+
+  <!-- Upload -->
+  <div class="card">
+    <h2>UPLOAD REPORTS</h2>
+    <div class="upload-grid">
+      <div class="upload-box">
+        <input type="file" id="salesInput" accept=".xlsx" multiple onchange="showFiles('salesInput','salesName')">
+        <div class="icon">📊</div>
+        <div class="label">Sales Report(s) · .xlsx</div>
+        <div class="fname" id="salesName">No file chosen</div>
+      </div>
+      <div class="upload-box">
+        <input type="file" id="attrInput" accept=".csv" multiple onchange="showFiles('attrInput','attrName')">
+        <div class="icon">🎯</div>
+        <div class="label">Attributed Orders · .csv</div>
+        <div class="fname" id="attrName">No file chosen</div>
+      </div>
+    </div>
+    <button class="btn" id="uploadBtn" onclick="uploadFiles()" disabled>UPLOAD & PROCESS</button>
+    <div class="result-msg" id="uploadResult"></div>
+  </div>
+
+  <!-- Loaded Days -->
+  <div class="card">
+    <h2>LOADED DAYS</h2>
+    <div id="daysContent"><div class="no-days">Loading...</div></div>
+  </div>
+</div>
+
+<script>
+let token = null;
+
+async function login() {
+  const pw  = document.getElementById('pwInput').value;
+  const err = document.getElementById('loginErr');
+  err.textContent = '';
+  const res  = await fetch('/api/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({password:pw}), credentials:'include' });
+  const data = await res.json();
+  if (!res.ok) { err.textContent = data.error || 'Wrong password'; return; }
+  showAdmin();
+}
+
+async function logout() {
+  await fetch('/api/logout', { method:'POST', credentials:'include' });
+  location.reload();
+}
+
+function showAdmin() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminPanel').classList.remove('admin-hidden');
+  loadDays();
+}
+
+function showFiles(inputId, nameId) {
+  const files = document.getElementById(inputId).files;
+  document.getElementById(nameId).textContent = files.length ? [...files].map(f=>f.name).join(', ') : 'No file chosen';
+  checkUploadReady();
+}
+
+function checkUploadReady() {
+  const s = document.getElementById('salesInput').files.length;
+  const a = document.getElementById('attrInput').files.length;
+  document.getElementById('uploadBtn').disabled = !(s && a);
+}
+
+async function uploadFiles() {
+  const btn    = document.getElementById('uploadBtn');
+  const result = document.getElementById('uploadResult');
+  btn.disabled = true; btn.textContent = 'PROCESSING...';
+  result.style.display = 'none';
+
+  const fd = new FormData();
+  for (const f of document.getElementById('salesInput').files) fd.append('sales', f);
+  for (const f of document.getElementById('attrInput').files)  fd.append('attr',  f);
+
+  const res  = await fetch('/api/upload', { method:'POST', body:fd, credentials:'include' });
+  const data = await res.json();
+
+  result.style.display = 'block';
+  if (res.ok) {
+    result.className = 'result-msg ok';
+    let msg = data.added.length ? `✓ Added: ${data.added.join(', ')}` : '✓ No new dates added';
+    if (data.skipped.length) msg += `\n⚠ Skipped: ${data.skipped.join(', ')}`;
+    result.textContent = msg;
+    loadDays();
+  } else {
+    result.className = 'result-msg err';
+    result.textContent = '✗ ' + (data.error || 'Upload failed');
+  }
+
+  btn.disabled = false; btn.textContent = 'UPLOAD & PROCESS';
+}
+
+async function loadDays() {
+  const res = await fetch('/api/leaderboard', { credentials:'include' });
+  const db  = await res.json();
+  const days = db.days || {};
+  const dates = Object.keys(days).sort().reverse();
+  const el = document.getElementById('daysContent');
+
+  if (!dates.length) { el.innerHTML = '<div class="no-days">No days loaded yet.</div>'; return; }
+
+  let html = `<table class="days-table"><thead><tr><th>Date</th><th>Budtenders</th><th>Top ATV</th><th></th></tr></thead><tbody>`;
+  for (const date of dates) {
+    const buds = days[date];
+    const count = Object.keys(buds).length;
+    const topATV = Math.max(...Object.values(buds).map(b=>b.avgTicket));
+    html += `<tr>
+      <td>${date}</td>
+      <td>${count}</td>
+      <td>$${topATV.toFixed(2)}</td>
+      <td><button class="delete-btn" onclick="deleteDay('${date}')">DELETE</button></td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+async function deleteDay(date) {
+  if (!confirm(`Delete data for ${date}? This cannot be undone.`)) return;
+  const res = await fetch(`/api/day/${date}`, { method:'DELETE', credentials:'include' });
+  if (res.ok) loadDays();
+  else alert('Delete failed');
+}
+
+// Check if already logged in via cookie
+fetch('/api/leaderboard', { credentials:'include' }).then(() => {
+  // Try a protected endpoint to see if cookie is valid
+  fetch('/api/day/ping', { method:'DELETE', credentials:'include' }).then(r => {
+    if (r.status !== 404 && r.status !== 401) return;
+    if (r.status === 404) showAdmin(); // authenticated, just date not found
+  });
+});
+</script>
+</body>
+</html>
