@@ -100,7 +100,7 @@ async function load() {
     atv: d.dailyATVs.reduce((a,b)=>a+b,0)/d.dailyATVs.length,
     totalOrders: d.totalOrders,
     days: d.dailyATVs.length
-  })).sort((a,b)=>b.atv-a.atv);
+  })).filter(b => b.totalOrders >= 50).sort((a,b)=>b.atv-a.atv);
 
   const maxATV = ranked[0]?.atv||1;
   const dateRange = dates.length>1 ? `${dates[0].slice(5)} – ${dates[dates.length-1].slice(5)}` : dates[0].slice(5);
